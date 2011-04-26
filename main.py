@@ -63,7 +63,15 @@ def onMove(event):
 	if len(elements) <= curelement:
 		return
 	element = elements[curelement]
-	if event.char == 'w':
+	if event.keysym == 'Left':
+		curelement -= 1
+		if curelement < 0:
+			curelement = len(elements) -1
+	elif event.keysym == 'Right':
+		curelement += 1
+		if curelement >= len(elements):
+			curelement = 0
+	elif event.char == 'w':
 		element.y -= 10
 	elif event.char == 's':
 		element.y += 10

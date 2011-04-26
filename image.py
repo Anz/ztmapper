@@ -10,7 +10,7 @@ def loadImages():
 	images = {}
 
 	for image in listdir("img"):
-		key = image.split(".")[0]
+		key = image.split(".")[0].title()
 		images[key] = PhotoImage(file="img/" + image)
 
 	return images

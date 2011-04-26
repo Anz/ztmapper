@@ -1,7 +1,10 @@
 from Tkinter import *
+from tkFileDialog import *
 from element import *
 from image import *
 from render import *
+from level import *
+from io import *
 
 images = None
 elements = []
@@ -95,6 +98,29 @@ def onMove(event):
 	refreshStatusbar(element)
 	repaint(canvas, elements, curelement)
 
+def onOpen():
+	global canvas
+	global elements
+	global curelement
+	global images
+	path = askopenfilename(filetypes = [('ZTG Map File', '*.map')])
+	print path
+	f = open(path, 'r')
+	mapRead(f, elements, images)
+	f.close()
+	curelement = 0
+	repaint(canvas, elements, curelement)
+
+def onSave():
+	return
+
+def onSaveAs():
+	global elements
+	f = asksaveasfile(mode='w', defaultextension=".map")
+	if f != None:
+		mapWrite(elements, f)
+		f.close()
+
 def main():
 	root = Tk()
 	root.title("ZTG Map Editor (ztmapper)")
@@ -105,7 +131,11 @@ def main():
 	images = loadImages()
 
 	menubar = Menu(root)
-	menubar.add_command(label="File")
+	filemenu = Menu(menubar, tearoff=0)
+	filemenu.add_command(label="Open", command=onOpen)
+	filemenu.add_command(label="Save", command=onSave)
+	filemenu.add_command(label="Save As", command=onSaveAs)
+	menubar.add_cascade(label="File", menu=filemenu)
 	root.config(menu=menubar)
 
 	global statusbar

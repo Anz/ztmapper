@@ -12,8 +12,8 @@ statusbar = None
 selector = 0
 
 def refreshStatusbar(element):
-	statusbar.config(text="%s position (%d,%d,%.2f) size (%d,%d)" % \
-		(element.type, element.x, element.y, element.layer, element.image.width(), element.image.height()))
+	statusbar.config(text="%s - Pos (%dpx, %dpx) Rot (%.0f cel) Size (%dpx, %dpx) Layer (%d%%)" % \
+		(element.type, element.x, element.y, element.rotation, element.image.width(), element.image.height(), element.layer*100))
 
 def onCreateElement(event):
 	global itemlist

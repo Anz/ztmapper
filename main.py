@@ -12,8 +12,9 @@ statusbar = None
 selector = 0
 
 def refreshStatusbar(element):
-	statusbar.config(text="%s - Pos (%dpx, %dpx) Rot (%.0f cel) Size (%dpx, %dpx) Layer (%d%%)" % \
-		(element.type, element.x, element.y, element.rotation, element.image.width(), element.image.height(), element.layer*100))
+	global curelement
+	statusbar.config(text="%s (ID %d) - Pos (%dpx, %dpx) Rot (%.0f cel) Size (%dpx, %dpx) Layer (%d%%)" % \
+		(element.type, curelement, element.x, element.y, element.rotation, element.image.width(), element.image.height(), element.layer*100))
 
 def onCreateElement(event):
 	global itemlist
@@ -48,6 +49,10 @@ def onSelectElement(event):
 			(miny < event.y) and (event.y < maxy):
 				matches.append(i)
 		i += 1
+
+	if len(matches) == 0:
+		curelement = -1
+		return
 
 	curelement = matches[selector % len(matches)]
 	element = elements[curelement]

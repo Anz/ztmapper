@@ -1,35 +1,7 @@
 from Tkinter import *
 from camera import *
+from vec2 import *
 from util import *
-
-class Vec2:
-	def __init__(self,x,y):
-		self.x = x
-		self.y = y
-
-	def add(self,vector):
-		self.x += vector.x
-		self.y += vector.y
-		return self
-
-	def sub(self,vector):
-		self.x -= vector.x
-		self.y -= vector.y
-		return self
-
-	def mul(self,vector):
-		self.x *= vector.x
-		self.y *= vector.y
-		return self
-
-def vec2_copy(vector):
-	return Vec2(vector.x, vector.y)
-
-def space2screen(coordinate, camera, screen):
-	point = vec2_copy(coordinate).mul(Vec2(1,-1))
-	point.sub(vec2_copy(camera).mul(Vec2(1,-1)))
-	point.add(vec2_copy(screen).mul(Vec2(0.5, 0.5)))
-	return point
 
 def repaint(canvas, camera, elements, selected):
 	renderables = sorted(list(elements), key=sortElement)

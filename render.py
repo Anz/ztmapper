@@ -18,7 +18,7 @@ def repaint(canvas, camera, elements, selected):
 	for element in renderables:
 		canvas.create_image(element.x - camera.x, element.y  - camera.y, image=element.image)
 
-	if selected < len(elements):
+	if 0 < selected and selected < len(elements):
 		element = elements[selected]
 		x = element.x - element.image.width() / 2 - camera.x
 		y = element.y - element.image.height() / 2 - camera.y

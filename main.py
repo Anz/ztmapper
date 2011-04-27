@@ -98,7 +98,7 @@ class Application:
 		extraW=self.root.winfo_screenwidth()-w
 		extraH=self.root.winfo_screenheight()-h
 		self.root.geometry("%dx%d%+d%+d" % (w*2,h*2,extraW/4,extraH/4))
-
+		self.root.update_idletasks()
 		self.update()
 		self.root.mainloop()
 		
@@ -107,7 +107,7 @@ class Application:
 		
 		self.camstatus.config(text="Camera (%5d px, %5d px)" % (self.camera.x, self.camera.y))
 		
-		if self.curelement >= len(self.elements):
+		if self.curelement < 0 or self.curelement >= len(self.elements):
 			return
 		
 		element = self.elements[self.curelement]
@@ -153,7 +153,7 @@ class Application:
 			i += 1
 
 		if len(matches) == 0:
-			self.curelement = 0
+			self.curelement = -1
 			return
 
 		self.curelement = matches[self.selector % len(matches)]

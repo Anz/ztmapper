@@ -56,7 +56,7 @@ class Application:
 		self.camstatus = Label(statusbar, text="", bd=1, relief=GROOVE, anchor=W)
 		self.camstatus.grid(row=0, column=0)
 
-		self.canvas = Canvas(self.root, bg = 'black')
+		self.canvas = Canvas(self.root, bg = 'gray10')
 		self.canvas.pack(side=LEFT, fill=BOTH, expand=1)
 		self.canvas.bind('<Button-1>',  self.onSelectElement)
 		self.canvas.bind('<Button-3>',  self.onCreateElement)

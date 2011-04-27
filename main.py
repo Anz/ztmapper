@@ -163,7 +163,7 @@ class Application:
 	
 	def onCameraMove(self,event):
 		self.camera.x += (self.lastx - event.x)
-		self.camera.y += (self.lasty - event.y)
+		self.camera.y -= (self.lasty - event.y)
 		self.update()
 		self.lastx = event.x
 		self.lasty = event.y

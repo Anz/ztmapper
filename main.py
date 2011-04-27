@@ -36,7 +36,6 @@ class Application:
 		self.root.bind_all('<Delete>', self.onDeleteElement)
 		self.root.bind_all('<Left>', self.onBackElement)
 		self.root.bind_all('<Right>', self.onNextElement)
-		#self.root.geometry("%dx%d%+d%+d" % (800, 500, 0, 0))
 
 		self.images = loadImages()
 
@@ -133,7 +132,8 @@ class Application:
 		image = self.images[type]
 		self.curelement = len(self.elements)
 		
-		element = Element(type, event.x + self.camera.x, event.y + self.camera.y, 0.0, image)
+		mouse = screen2space(Vec2(event.x, event.y), Vec2(self.camera.x, self.camera.y), Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
+		element = Element(type, mouse.x, mouse.y, 0.0, image)
 		self.elements.append(element)
 		self.update()
 		
@@ -148,8 +148,6 @@ class Application:
 			maxx = minx + element.image.width()
 			miny = element.y - element.image.height() / 2
 			maxy = miny + element.image.height()
-			#x = event.x + self.camera.x
-			#y = event.y + self.camera.y
 			mouse = screen2space(Vec2(event.x, event.y), Vec2(self.camera.x, self.camera.y), Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
 			if (minx < mouse.x) and (mouse.x < maxx) and \
 				(miny < mouse.y) and (mouse.y < maxy):
@@ -174,7 +172,7 @@ class Application:
 
 	def onMotion(self,event):	
 		mouse = screen2space(Vec2(event.x, event.y), Vec2(self.camera.x, self.camera.y), Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
-		self.mousestatus.config(text="Mouse (%5d px, %5d px)" % (mouse.x, mouse.y))
+		self.mousestatus.config(text="Mouse (%5d px, %5d px) (%d, %d)" % (mouse.x, mouse.y, event.x, event.y))
 
 	def onCameraReset(self):
 		self.camera.x = 0
@@ -193,12 +191,12 @@ class Application:
 
 	def onMoveTop(self, event):
 		if self.curelement < len(self.elements):
-			self.elements[self.curelement].y -= 10
+			self.elements[self.curelement].y += 10
 			self.update()			
 
 	def onMoveDown(self, event):
 		if self.curelement < len(self.elements):
-			self.elements[self.curelement].y += 10
+			self.elements[self.curelement].y -= 10
 			self.update()
 			
 	def onMoveSlowLeft(self, event):

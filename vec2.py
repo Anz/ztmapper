@@ -27,5 +27,14 @@ class Vec2:
 	def __mul__(self,vector):
 		return Vec2(self.x*vector.x, self.y*vector.y)
 
+	def __idiv__(self,vector):
+		self.x /= vector.x
+		self.y /= vector.y
+		return self
+
+	def __div__(self,vector):
+		return Vec2(self.x/vector.x, self.y/vector.y)
+
+
 def vec2_copy(vector):
 	return Vec2(vector.x, vector.y)

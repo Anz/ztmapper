@@ -1,16 +1,13 @@
 from os import *
-from ImageTk import *
-
-class Image:
-	def __init__(self,width, height):
-		self.width = width
-		self.height = height
+from PIL import ImageTk, Image
+from Tkinter import *
+import Image
 
 def loadImages():
 	images = {}
 
 	for image in listdir("img"):
-		key = image.split(".")[0].title()
-		images[key] = PhotoImage(file="img/" + image)
+		key = image.split(".")[0].lower()
+		images[key] = ImageTk.PhotoImage(Image.open("img/" + image))
 
 	return images

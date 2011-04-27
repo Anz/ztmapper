@@ -1,9 +1,11 @@
 from Tkinter import *
 from camera import *
+from util import *
 
 def repaint(canvas, camera, elements, selected):
+	renderables = sorted(list(elements), key=sortElement)
 	canvas.delete(ALL)
-	for element in elements:
+	for element in renderables:
 		canvas.create_image(element.x - camera.x, element.y  - camera.y, image=element.image)
 
 	if selected < len(elements):

@@ -144,8 +144,8 @@ class Application:
 			maxx = minx + element.image.width()
 			miny = element.y - element.image.height() / 2
 			maxy = miny + element.image.height()
-			x = event.x - self.camera.x
-			y = event.y - self.camera.y
+			x = event.x + self.camera.x
+			y = event.y + self.camera.y
 			if (minx < x) and (x < maxx) and \
 				(miny < y) and (y < maxy):
 					matches.append(i)

@@ -55,12 +55,15 @@ class Application:
 		statusbar.pack(side=BOTTOM, fill=X)
 		self.camstatus = Label(statusbar, text="", bd=1, relief=GROOVE, anchor=W)
 		self.camstatus.grid(row=0, column=0)
+		self.mousestatus = Label(statusbar, text="", bd=1, relief=GROOVE, anchor=W)
+		self.mousestatus.grid(row=0, column=1)
 
 		self.canvas = Canvas(self.root, bg = 'gray10')
 		self.canvas.pack(side=LEFT, fill=BOTH, expand=1)
 		self.canvas.bind('<Button-1>',  self.onSelectElement)
 		self.canvas.bind('<Button-3>',  self.onCreateElement)
 		self.canvas.bind('<B1-Motion>',  self.onCameraMove)
+		self.canvas.bind('<Motion>',  self.onMotion)
 
 		workpanel = Frame(self.root)
 		workpanel.pack(side=RIGHT, fill=Y)
@@ -106,7 +109,7 @@ class Application:
 		repaint(self.canvas, self.camera, self.elements, self.curelement)
 		
 		self.camstatus.config(text="Camera (%5d px, %5d px)" % (self.camera.x, self.camera.y))
-		
+	
 		if self.curelement < 0 or self.curelement >= len(self.elements):
 			return
 		
@@ -145,10 +148,11 @@ class Application:
 			maxx = minx + element.image.width()
 			miny = element.y - element.image.height() / 2
 			maxy = miny + element.image.height()
-			x = event.x + self.camera.x
-			y = event.y + self.camera.y
-			if (minx < x) and (x < maxx) and \
-				(miny < y) and (y < maxy):
+			#x = event.x + self.camera.x
+			#y = event.y + self.camera.y
+			mouse = screen2space(Vec2(event.x, event.y), Vec2(self.camera.x, self.camera.y), Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
+			if (minx < mouse.x) and (mouse.x < maxx) and \
+				(miny < mouse.y) and (mouse.y < maxy):
 					matches.append(i)
 			i += 1
 
@@ -167,7 +171,11 @@ class Application:
 		self.update()
 		self.lastx = event.x
 		self.lasty = event.y
-	
+
+	def onMotion(self,event):	
+		mouse = screen2space(Vec2(event.x, event.y), Vec2(self.camera.x, self.camera.y), Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
+		self.mousestatus.config(text="Mouse (%5d px, %5d px)" % (mouse.x, mouse.y))
+
 	def onCameraReset(self):
 		self.camera.x = 0
 		self.camera.y = 0

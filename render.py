@@ -1,5 +1,4 @@
 from Tkinter import *
-from camera import *
 from vec2 import *
 from util import *
 

@@ -6,14 +6,13 @@ from element import *
 from image import *
 from render import *
 from level import *
-from camera import *
 from util import *
 from io import *
 		
 class Application:
 
 	def __init__(self):
-		self.camera = Camera(0,0)
+		self.camera = Vec2(0,0)
 		self.elements = []
 		self.curelement = 0
 		self.selector = 0

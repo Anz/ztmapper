@@ -3,20 +3,29 @@ class Vec2:
 		self.x = x
 		self.y = y
 
-	def add(self,vector):
+	def __iadd__(self,vector):
 		self.x += vector.x
 		self.y += vector.y
 		return self
 
-	def sub(self,vector):
+	def __add__(self,vector):
+		return Vec2(self.x+vector.x, self.y+vector.y)
+
+	def __isub__(self,vector):
 		self.x -= vector.x
 		self.y -= vector.y
 		return self
 
-	def mul(self,vector):
+	def __sub__(self,vector):
+		return Vec2(self.x-vector.x, self.y-vector.y)
+
+	def __imul__(self,vector):
 		self.x *= vector.x
 		self.y *= vector.y
 		return self
+
+	def __mul__(self,vector):
+		return Vec2(self.x*vector.x, self.y*vector.y)
 
 def vec2_copy(vector):
 	return Vec2(vector.x, vector.y)

@@ -4,14 +4,7 @@ def sortElement(element):
 	return element.layer
 
 def space2screen(coordinate, camera, screen):
-	point = vec2_copy(coordinate).mul(Vec2(1,-1))
-	point.sub(vec2_copy(camera).mul(Vec2(1,-1)))
-	point.add(vec2_copy(screen).mul(Vec2(0.5, 0.5)))
-	return point
+	return (coordinate - camera) * Vec2(1,-1) + screen * Vec2(0.5, 0.5)
 
 def screen2space(coordinate, camera, screen):
-	point = vec2_copy(screen).mul(Vec2(-0.5, -0.5))
-	point.add(vec2_copy(camera).mul(Vec2(1,-1)))
-	point.sub(vec2_copy(coordinate).mul(Vec2(1,-1)))
-	return point
-
+	return (camera - coordinate) * Vec2(1,-1) - screen * Vec2(0.5, 0.5)

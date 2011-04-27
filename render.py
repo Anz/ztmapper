@@ -27,7 +27,7 @@ def repaint(canvas, camera, elements, selected):
 
 		coordinate = space2screen(Vec2(element.x, element.y), cam, screen)
 		size = Vec2(element.image.width(), element.image.height()).mul(Vec2(0.5, 0.5))
-		tl = vec2_copy(coordinate).sub(size)
-		br = vec2_copy(coordinate).add(size)
+		tl = coordinate - size
+		br = coordinate + size
 		canvas.create_rectangle(tl.x, tl.y, br.x, br.y, fill=None, outline="yellow")
 

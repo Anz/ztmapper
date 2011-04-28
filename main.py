@@ -25,6 +25,7 @@ class Application:
 		self.root.report_callback_exception = self.catch_exception
 		self.root.report_callback_exception = self.catch_exception
 		self.root.title("ZTG Map Editor (ztmapper)")
+		self.root.bind_all('<Expose>', self.onRedraw)
 		self.root.bind_all('w', self.onMoveTop)
 		self.root.bind_all('a', self.onMoveLeft)
 		self.root.bind_all('s', self.onMoveDown)
@@ -347,6 +348,9 @@ class Application:
 	def onSaveAs(self):
 		self.path = asksaveasfilename(defaultextension=".map")
 		self.onSave()
+
+	def onRedraw(self,event):
+		self.update()
 		
 	def onClose(self):
 		if self.saved == 1 or askokcancel("Unsaved changes", "Do you really wish to quit without saving?"):

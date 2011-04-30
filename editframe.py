@@ -29,7 +29,7 @@ class EditButton:
 		if self.submenu != None:
 			x = int(self.parent.geometry().split("+")[1]) + int(self.parent.geometry().split("x")[0])
 			y = int(self.parent.geometry().split("+")[2]) + self.number * 27
-			self.submenu.show(x,y)
+			self.submenu.show(Vec2(x,y))
 			self.parent.deiconify()
 
 	def onLeave(self,event):
@@ -51,8 +51,8 @@ class EditMenu:
 		EditButton(self.root, self.items, text, command, submenu)
 		self.items += 1
 
-	def show(self,x,y):
-		self.root.geometry("%dx%d%+d%+d" % (116, self.items * 27, x, y))
+	def show(self, position):
+		self.root.geometry("%dx%d%+d%+d" % (116, self.items * 27, position.x, position.y))
 		self.root.deiconify()
 
 	def unshow(self):
@@ -81,9 +81,9 @@ class EditFrame:
 		self.main.additem("Delete", self.deleteSelectedElements, None)
 		self.main.additem("Properties", None, None)
 
-	def show(self,x,y):
-		self.mouse = Vec2(x,y)
-		self.main.show(x,y)
+	def show(self, absolute, relative):
+		self.mouse = relative
+		self.main.show(absolute)
 
 	def unshow(self):
 		self.main.unshow()

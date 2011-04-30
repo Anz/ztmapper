@@ -15,7 +15,6 @@ class Application:
 
 	def __init__(self):
 		self.space = Space()	
-		#self.camera = Vec2(0,0)
 		self.selector = 0
 		self.clipboard = []
 		self.multiselection = 0
@@ -137,7 +136,7 @@ class Application:
 		"""
 		
 	def onEdit(self, event):
-		self.editframe.show(event.x_root, event.y_root)
+		self.editframe.show(Vec2(event.x_root, event.y_root), Vec2(event.x, event.y))
 		"""
 		if len(self.itemlist.curselection()) == 0:
 			return

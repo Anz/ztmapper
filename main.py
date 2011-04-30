@@ -68,7 +68,7 @@ class Application:
 		self.canvas.bind('<B1-Motion>',  self.onMove)
 		self.canvas.bind('<Motion>',  self.onMotion)
 
-		self.editor = Editor(self.canvas)
+		self.editor = Editor(self.canvas, self.images)
 
 		workpanel = Frame(self.root)
 		workpanel.pack(side=RIGHT, fill=Y)
@@ -161,14 +161,24 @@ class Application:
 		matches = []
 
 		for element in self.space.elements:
+			image = self.images[element.type]
+			size = Vec2(image.width(), image.height()) / Vec2(2,2)
+			min = element.pos - size
+			max = element.pos + size
+			mouse = self.editor.getScreenInSpace(Vec2(event.x, event.y))
+			"""
 			minx = element.pos.x - element.image.width() / 2
 			maxx = minx + element.image.width()
 			miny = element.pos.y - element.image.height() / 2
 			maxy = miny + element.image.height()
 			mouse = screen2space(Vec2(event.x, event.y), self.editor.camera, Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
+			
 			if (minx < mouse.x) and (mouse.x < maxx) and \
 				(miny < mouse.y) and (mouse.y < maxy):
 					matches.append(i)
+			"""
+			if min < mouse and mouse < max:
+				matches.append(i)
 			i += 1
 
 		if len(matches) == 0:

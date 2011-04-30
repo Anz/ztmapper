@@ -74,17 +74,24 @@ class EditFrame:
 		self.layersubmenu.additem("Lower", None, None)
 
 		self.main = EditMenu()
-		self.main.additem("Add", None, self.addsubmenu)
+		self.main.additem("Add", self.addElement, self.addsubmenu)
 		self.main.additem("Layer", None, self.layersubmenu)
 		self.main.additem("Move", None, None)
 		self.main.additem("Delete", self.deleteSelectedElements, None)
 		self.main.additem("Properties", None, None)
 
 	def show(self,x,y):
+		self.mouse = Vec2(x,y)
 		self.main.show(x,y)
 
 	def unshow(self):
 		self.main.unshow()
+
+	def addElement(self):
+		position = self.editor.getScreenInSpace(self.mouse)
+		element = Element("box", position, 0.0, 0.0)
+		self.space.addElement(element)
+		self.editor.render(self.space)
 
 	def deleteSelectedElements(self):
 		self.main.unshow()

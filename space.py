@@ -11,6 +11,9 @@ class Space:
 			selecteds.append(self.elements[selected])
 		return selecteds
 			
+	def addElement(self, element):
+		self.selection = [ len(self.elements) ]
+		self.elements.append(element)
 
 	def moveSelection(self, vector):
 		for element in self.getSelected():

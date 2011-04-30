@@ -4,35 +4,39 @@ from space import *
 from util import *
 
 class Editor:
-	def __init__(self, canvas):
+	def __init__(self, canvas, images):
 		self.canvas = canvas
 		self.camera = Vec2(0,0)
+		self.images = images
+
+	def getScreenInSpace(self,vector):
+		return screen2space(vector, self.camera, Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
 
 	def render(self, space):
-		repaint(self.canvas, self.camera, space)
+		repaint(self.canvas, self.camera, self.images, space)
 
-def repaint(canvas, camera, space):
+def repaint(canvas, camera, images, space):
 	elements = space.elements
 	selection = space.selection
 
 	renderables = sorted(list(elements), key=sortElement)
 	canvas.delete(ALL)
 
-	cam = Vec2(camera.x, camera.y)
 	screen = Vec2(canvas.winfo_width(), canvas.winfo_height())
 
 	paintHelperline(canvas, camera, screen)
 			
 	for element in renderables:
-		coordinate = space2screen(element.pos, cam, screen)
-		canvas.create_image(coordinate.x, coordinate.y, image=element.image)
+		coordinate = space2screen(element.pos, camera, screen)
+		image = images[element.type]
+		canvas.create_image(coordinate.x, coordinate.y, image=image)
 
 	for selected in selection:
 		if 0 <= selected and selected < len(elements):
 			element = elements[selected]
-
-			coordinate = space2screen(element.pos, cam, screen)
-			size = Vec2(element.image.width(), element.image.height()) * Vec2(0.5, 0.5)
+			image = images[element.type]
+			coordinate = space2screen(element.pos, camera, screen)
+			size = Vec2(image.width(), image.height()) / Vec2(2,2)
 			tl = coordinate - size
 			br = coordinate + size
 			canvas.create_rectangle(tl.x, tl.y, br.x, br.y, fill=None, outline="yellow")

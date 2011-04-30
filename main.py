@@ -284,6 +284,7 @@ class Application:
 		self.selection = [ min - 1 ]
 		if self.selection[0] < 0:
 			self.selection[0] = len(self.elements) -1
+		self.camera = self.elements[self.selection[0]].pos
 		self.update()
 	
 	def onNextElement(self,event):
@@ -295,8 +296,9 @@ class Application:
 			if selected > max:
 				max = selected
 		self.selection = [ max + 1 ]
-		if self.selection[0] > len(self.elements):
+		if self.selection[0] >= len(self.elements):
 			self.selection[0] = 0
+		self.camera = self.elements[self.selection[0]].pos
 		self.update()
 		
 	def onSelectAll(self,event):

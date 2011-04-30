@@ -6,6 +6,7 @@ from element import *
 from image import *
 from render import *
 from level import *
+from editframe import *
 from util import *
 from io import *
 		
@@ -102,8 +103,9 @@ class Application:
 		self.layer = Entry(infopanel, width=4)
 		self.layer.grid(row=4, column=1)
 		Label(infopanel, text="%").grid(row=4, column=2, sticky=W)
-		
-		
+			
+		self.editframe = EditFrame()
+
 		self.root.update_idletasks()
 		w=self.root.winfo_width()
 		h=self.root.winfo_height()
@@ -136,6 +138,8 @@ class Application:
 		self.layer.insert(0, str(int(element.layer * 100)))
 		
 	def onCreateElement(self, event):
+		self.editframe.show(event.x_root, event.y_root)
+
 		if len(self.itemlist.curselection()) == 0:
 			return
 		self.saved = 0
@@ -149,6 +153,8 @@ class Application:
 		self.update()
 		
 	def onSelectElement(self, event):
+		self.editframe.unshow()
+
 		self.lastx = event.x
 		self.lasty = event.y
 		i = 0

@@ -47,7 +47,11 @@ class EditButton:
 		self.canvas.create_polygon((0, 10, 0, 16, 3, 13), fill="grey")
 
 	def onClick(self):
-		self.parent.unshow()
+		editmenu = self.parent
+		while editmenu != None:
+			editmenu.unshow()
+			editmenu = editmenu.parent
+
 		if self.command != None:
 			self.command(self.text)
 
@@ -72,8 +76,6 @@ class EditMenu:
 
 	def unshow(self):
 		self.root.withdraw()
-		if self.parent != None:
-			self.parent.unshow()
 
 class EditFrame:
 	def __init__(self, editor, space, images):
@@ -110,7 +112,6 @@ class EditFrame:
 		self.editor.render(self.space)
 
 	def deleteSelectedElements(self,label):
-		self.main.unshow()
 		self.space.deleteSelection()
 		self.editor.render(self.space)
 

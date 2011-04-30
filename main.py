@@ -99,7 +99,7 @@ class Application:
 		self.layer.grid(row=4, column=1)
 		Label(infopanel, text="%").grid(row=4, column=2, sticky=W)
 			
-		self.editframe = EditFrame(self.editor, self.space)
+		self.editframe = EditFrame(self.editor, self.space, self.images)
 
 		self.root.update_idletasks()
 		w=self.root.winfo_width()

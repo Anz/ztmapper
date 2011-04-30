@@ -59,14 +59,12 @@ class EditMenu:
 		self.root.withdraw()
 
 class EditFrame:
-	def __init__(self, editor, space):
+	def __init__(self, editor, space, images):
 		self.editor = editor
 		self.space = space
 		self.addsubmenu = EditMenu()
-		self.addsubmenu.additem("Box", None, None)
-		self.addsubmenu.additem("Zombie", None, None)
-		self.addsubmenu.additem("Bat", None, None)
-		self.addsubmenu.additem("Cave", None, None)
+		for image in images:
+			self.addsubmenu.additem(image, None, None)
 
 		self.layersubmenu = EditMenu()
 		self.layersubmenu.additem("On Top", None, None)

@@ -1,5 +1,6 @@
 from Tkinter import *
 from editor import *
+from element import *
 
 class EditButton:
 	def __init__(self, parent, number, text, command, submenu):

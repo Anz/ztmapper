@@ -7,13 +7,16 @@ class EditButton:
 		self.parent = parent
 		self.number = number
 		self.submenu = submenu
+		self.command = command
+		self.text = text
 
-		self.frame = Frame(parent)
+		self.frame = Frame(parent.root)
 		self.frame.pack(fill=X)
 		self.frame.bind('<Enter>', self.onEnter)
 		self.frame.bind('<Leave>', self.onLeave)
 
-		self.button = Button(self.frame, text=text, padx=15,activebackground="grey", fg="grey", bg="grey20", highlightthickness=0, relief=FLAT, anchor=W, command=command)
+		self.button = Button(self.frame, text=text, padx=15,activebackground="grey", fg="grey", bg="grey20", highlightthickness=0, relief=FLAT, anchor=W, 
+			command=self.onClick)
 		self.button.pack(side=LEFT,fill=X,expand=1)
 
 		self.canvas = Canvas(self.frame, highlightthickness=0, relief=FLAT, bd=0, bg="grey20", width=7, height=27)
@@ -22,33 +25,45 @@ class EditButton:
 			self.canvas.pack(side=RIGHT)
 
 	def onEnter(self,event):
+		if self.parent.submenu != None:
+			self.parent.submenu.unshow()
+			self.parent.submenu = None
+
 		self.button.config(fg="grey20", bg="grey")
 		self.canvas.config(bg="grey")
 		self.canvas.create_polygon((0, 10, 0, 16, 3, 13), fill="grey20")
 
+
 		if self.submenu != None:
-			x = int(self.parent.geometry().split("+")[1]) + int(self.parent.geometry().split("x")[0])
-			y = int(self.parent.geometry().split("+")[2]) + self.number * 27
+			self.parent.submenu = self.submenu
+			x = int(self.parent.root.geometry().split("+")[1]) + int(self.parent.root.geometry().split("x")[0])
+			y = int(self.parent.root.geometry().split("+")[2]) + self.number * 27
 			self.submenu.show(Vec2(x,y))
-			self.parent.deiconify()
+			self.parent.root.deiconify()
 
 	def onLeave(self,event):
 		self.button.config(fg="grey", bg="grey20")
 		self.canvas.config(bg="grey20")
 		self.canvas.create_polygon((0, 10, 0, 16, 3, 13), fill="grey")
 
-		if self.submenu != None:
-			self.submenu.unshow()
+	def onClick(self):
+		self.parent.unshow()
+		if self.command != None:
+			self.command(self.text)
 
 class EditMenu:
 	def __init__(self):
+		self.parent = None
 		self.root = Toplevel(bg='grey20')
 		self.root.overrideredirect(1)
 		self.root.withdraw()
 		self.items = 0
+		self.submenu = None
 		
 	def additem(self, text, command, submenu):
-		EditButton(self.root, self.items, text, command, submenu)
+		if submenu != None:
+			submenu.parent = self
+		EditButton(self, self.items, text, command, submenu)
 		self.items += 1
 
 	def show(self, position):
@@ -57,6 +72,8 @@ class EditMenu:
 
 	def unshow(self):
 		self.root.withdraw()
+		if self.parent != None:
+			self.parent.unshow()
 
 class EditFrame:
 	def __init__(self, editor, space, images):
@@ -64,7 +81,7 @@ class EditFrame:
 		self.space = space
 		self.addsubmenu = EditMenu()
 		for image in images:
-			self.addsubmenu.additem(image, None, None)
+			self.addsubmenu.additem(image, self.addElement, None)
 
 		self.layersubmenu = EditMenu()
 		self.layersubmenu.additem("On Top", None, None)
@@ -73,7 +90,7 @@ class EditFrame:
 		self.layersubmenu.additem("Lower", None, None)
 
 		self.main = EditMenu()
-		self.main.additem("Add", self.addElement, self.addsubmenu)
+		self.main.additem("Add", None, self.addsubmenu)
 		self.main.additem("Layer", None, self.layersubmenu)
 		self.main.additem("Move", None, None)
 		self.main.additem("Delete", self.deleteSelectedElements, None)
@@ -86,13 +103,14 @@ class EditFrame:
 	def unshow(self):
 		self.main.unshow()
 
-	def addElement(self):
+	def addElement(self,label):
 		position = self.editor.getScreenInSpace(self.mouse)
-		element = Element("box", position, 0.0, 0.0)
+		element = Element(label, position, 0.0, 0.0)
 		self.space.addElement(element)
 		self.editor.render(self.space)
 
-	def deleteSelectedElements(self):
+	def deleteSelectedElements(self,label):
 		self.main.unshow()
 		self.space.deleteSelection()
 		self.editor.render(self.space)
+

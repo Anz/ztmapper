@@ -4,7 +4,6 @@ class Space:
 	def __init__(self):
 		self.elements = []
 		self.selection = []
-		self.clipboard = []
 
 	def getSelected(self):
 		selecteds = []

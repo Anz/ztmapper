@@ -17,6 +17,7 @@ class Application:
 		self.space = Space()	
 		self.camera = Vec2(0,0)
 		self.selector = 0
+		self.clipboard = []
 		self.multiselection = 0
 		self.saved = 1
 
@@ -62,8 +63,8 @@ class Application:
 
 		self.canvas = Canvas(self.root, bg = 'gray20', relief=RAISED, highlightbackground="yellow")
 		self.canvas.pack(side=LEFT, fill=BOTH, expand=1)
-		self.canvas.bind('<Button-1>',  self.onSelectElement)
-		self.canvas.bind('<Button-3>',  self.onCreateElement)
+		self.canvas.bind('<Button-1>',  self.onSelect)
+		self.canvas.bind('<Button-3>',  self.onEdit)
 		self.canvas.bind('<B1-Motion>',  self.onMove)
 		self.canvas.bind('<Motion>',  self.onMotion)
 
@@ -131,7 +132,7 @@ class Application:
 		self.layer.insert(0, str(int(element.layer * 100)))
 		"""
 		
-	def onCreateElement(self, event):
+	def onEdit(self, event):
 		self.editframe.show(event.x_root, event.y_root)
 		"""
 		if len(self.itemlist.curselection()) == 0:
@@ -147,7 +148,7 @@ class Application:
 		self.update()
 		"""
 		
-	def onSelectElement(self, event):
+	def onSelect(self, event):
 		self.editframe.unshow()
 
 		self.lastx = event.x
@@ -172,7 +173,7 @@ class Application:
 			self.space.selection = [ matches[self.selector % len(matches)] ]
 		else:
 			for selected in matches:
-				if selected in self.selection:
+				if selected in self.space.selection:
 					self.space.selection.remove(selected)
 				else:
 					self.space.selection.append(selected)
@@ -239,18 +240,21 @@ class Application:
 		self.update()
 		
 	def onCopy(self,event):
-		self.space.clipboard = list(self.space.selection)
+		self.clipboard = []
+		selecteds = self.space.getSelected()
+		for selected in selecteds:
+			element = element_copy(selected)
+			element.pos -= self.camera
+			self.clipboard.append(element)
 		
 	def onPaste(self,event):
-		"""
-		self.space.selection = range(len(self.space.elements), len(self.space.elements)+len(self.space.clipboard))
-		for selected in self.clipboard:
-			if 0 <= selected and selected < len(self.elements):
-				element = element_copy(self.elements[selected])
-				self.elements.append(element)
-				self.saved = 0
+		self.space.selection = []
+		for copy in self.clipboard:
+			element = element_copy(copy)
+			element.pos += self.camera
+			self.space.selection.append(len(self.space.elements))
+			self.space.elements.append(element)
 		self.update()
-		"""
 		
 	def onMultiSelectionEnable(self,event):
 		self.multiselection = 1

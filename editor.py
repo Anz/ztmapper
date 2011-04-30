@@ -3,6 +3,14 @@ from vec2 import *
 from space import *
 from util import *
 
+class Editor:
+	def __init__(self, canvas):
+		self.canvas = canvas
+		self.camera = Vec2(0,0)
+
+	def render(self, space):
+		repaint(self.canvas, self.camera, space)
+
 def repaint(canvas, camera, space):
 	elements = space.elements
 	selection = space.selection

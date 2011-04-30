@@ -1,4 +1,5 @@
 from Tkinter import *
+from editor import *
 
 class EditButton:
 	def __init__(self, parent, number, text, command, submenu):
@@ -57,7 +58,9 @@ class EditMenu:
 		self.root.withdraw()
 
 class EditFrame:
-	def __init__(self):
+	def __init__(self, editor, space):
+		self.editor = editor
+		self.space = space
 		self.addsubmenu = EditMenu()
 		self.addsubmenu.additem("Box", None, None)
 		self.addsubmenu.additem("Zombie", None, None)
@@ -74,7 +77,7 @@ class EditFrame:
 		self.main.additem("Add", None, self.addsubmenu)
 		self.main.additem("Layer", None, self.layersubmenu)
 		self.main.additem("Move", None, None)
-		self.main.additem("Delete", None, None)
+		self.main.additem("Delete", self.deleteSelectedElements, None)
 		self.main.additem("Properties", None, None)
 
 	def show(self,x,y):
@@ -82,3 +85,8 @@ class EditFrame:
 
 	def unshow(self):
 		self.main.unshow()
+
+	def deleteSelectedElements(self):
+		self.main.unshow()
+		self.space.deleteSelection()
+		self.editor.render(self.space)

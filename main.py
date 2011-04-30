@@ -5,7 +5,7 @@ from traceback import *
 from element import *
 from space import *
 from image import *
-from render import *
+from editor import *
 from level import *
 from editframe import *
 from util import *
@@ -15,7 +15,7 @@ class Application:
 
 	def __init__(self):
 		self.space = Space()	
-		self.camera = Vec2(0,0)
+		#self.camera = Vec2(0,0)
 		self.selector = 0
 		self.clipboard = []
 		self.multiselection = 0
@@ -68,6 +68,8 @@ class Application:
 		self.canvas.bind('<B1-Motion>',  self.onMove)
 		self.canvas.bind('<Motion>',  self.onMotion)
 
+		self.editor = Editor(self.canvas)
+
 		workpanel = Frame(self.root)
 		workpanel.pack(side=RIGHT, fill=Y)
 		
@@ -98,7 +100,7 @@ class Application:
 		self.layer.grid(row=4, column=1)
 		Label(infopanel, text="%").grid(row=4, column=2, sticky=W)
 			
-		self.editframe = EditFrame()
+		self.editframe = EditFrame(self.editor, self.space)
 
 		self.root.update_idletasks()
 		w=self.root.winfo_width()
@@ -111,7 +113,9 @@ class Application:
 		self.root.mainloop()
 		
 	def update(self):
-		repaint(self.canvas, self.camera, self.space)
+		#repaint(self.canvas, self.editor.camera, self.space)
+		self.editor.render(self.space)
+
 		"""
 		self.camstatus.config(text="Camera (%5d px, %5d px)" % (self.camera.x, self.camera.y))
 
@@ -161,7 +165,7 @@ class Application:
 			maxx = minx + element.image.width()
 			miny = element.pos.y - element.image.height() / 2
 			maxy = miny + element.image.height()
-			mouse = screen2space(Vec2(event.x, event.y), self.camera, Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
+			mouse = screen2space(Vec2(event.x, event.y), self.editor.camera, Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
 			if (minx < mouse.x) and (mouse.x < maxx) and \
 				(miny < mouse.y) and (mouse.y < maxy):
 					matches.append(i)
@@ -182,7 +186,7 @@ class Application:
 		self.selector += 1
 	
 	def onMove(self,event):
-		self.camera += Vec2(self.lastx - event.x, event.y - self.lasty)
+		self.editor.camera += Vec2(self.lastx - event.x, event.y - self.lasty)
 		self.update()
 		self.lastx = event.x
 		self.lasty = event.y
@@ -194,7 +198,7 @@ class Application:
 		"""
 
 	def onCameraReset(self):
-		self.camera = Vec2(0,0)
+		self.editor.camera = Vec2(0,0)
 		self.update()
 	
 	def onLeft(self, event):
@@ -225,14 +229,14 @@ class Application:
 		self.space.previous()
 		selecteds = self.space.getSelected()
 		if len(selecteds) == 1:
-			self.camera = selecteds[0].pos
+			self.editor.camera = selecteds[0].pos
 		self.update()
 	
 	def onNextElement(self,event):
 		self.space.next()
 		selecteds = self.space.getSelected()
 		if len(selecteds) == 1:
-			self.camera = selecteds[0].pos
+			self.editor.camera = selecteds[0].pos
 		self.update()
 		
 	def onSelectAll(self,event):
@@ -244,14 +248,14 @@ class Application:
 		selecteds = self.space.getSelected()
 		for selected in selecteds:
 			element = element_copy(selected)
-			element.pos -= self.camera
+			element.pos -= self.editor.camera
 			self.clipboard.append(element)
 		
 	def onPaste(self,event):
 		self.space.selection = []
 		for copy in self.clipboard:
 			element = element_copy(copy)
-			element.pos += self.camera
+			element.pos += self.editor.camera
 			self.space.selection.append(len(self.space.elements))
 			self.space.elements.append(element)
 		self.update()
@@ -271,7 +275,7 @@ class Application:
 		file.close()
 		curelement = 0
 		element = self.space.elements[curelement]
-		self.camera = Vec2(0,0)
+		self.editor.camera = Vec2(0,0)
 		self.saved = 1
 		self.update()
 

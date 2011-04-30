@@ -12,7 +12,7 @@ class EditButton:
 		self.frame.pack(fill=X)
 		self.frame.bind('<Enter>', self.onEnter)
 
-		self.button = Button(self.frame, text=text, padx=15,activebackground="grey", fg="grey", bg="grey20", highlightthickness=0, relief=FLAT, anchor=W, 
+		self.button = Button(self.frame, text=text, padx=15,disabledforeground="black",activebackground="grey", fg="grey", bg="grey20", highlightthickness=0, relief=FLAT, anchor=W, 
 			command=self.onClick)
 		self.button.pack(side=LEFT,fill=X,expand=1)
 
@@ -42,8 +42,7 @@ class EditSubButton:
 		self.frame.bind('<Enter>', self.onEnter)
 		self.frame.bind('<Leave>', self.onLeave)
 
-		self.button = Button(self.frame, text=text, padx=15,activebackground="grey", fg="grey", bg="grey20", highlightthickness=0, relief=FLAT, anchor=W, 
-			state=DISABLED, command=self.onClick)
+		self.button = Button(self.frame, text=text, padx=15,activebackground="grey", fg="grey", bg="grey20", highlightthickness=0, relief=FLAT, anchor=W)
 		self.button.pack(side=LEFT,fill=X,expand=1)
 
 		self.canvas = Canvas(self.frame, highlightthickness=0, relief=FLAT, bd=0, bg="grey20", width=7, height=27)
@@ -70,15 +69,6 @@ class EditSubButton:
 		self.button.config(fg="grey", bg="grey20")
 		self.canvas.config(bg="grey20")
 		self.canvas.create_polygon((0, 10, 0, 16, 3, 13), fill="grey")
-
-	def onClick(self):
-		editmenu = self.parent
-		while editmenu != None:
-			editmenu.unshow()
-			editmenu = editmenu.parent
-
-		if self.command != None:
-			self.command(self.text)
 
 class EditMenu:
 	def __init__(self):

@@ -3,6 +3,7 @@ from tkFileDialog import *
 from tkMessageBox import *
 from traceback import *
 from element import *
+from space import *
 from image import *
 from render import *
 from level import *
@@ -13,31 +14,23 @@ from io import *
 class Application:
 
 	def __init__(self):
+		self.space = Space()	
 		self.camera = Vec2(0,0)
-		self.elements = []
-		self.selection = []
-		self.clipboard = []
-		self.multiselection = 0
 		self.selector = 0
+		self.multiselection = 0
 		self.saved = 1
-	
+
 		self.root = Tk()
 		self.root.protocol("WM_DELETE_WINDOW", self.onClose)
 		self.root.report_callback_exception = self.catch_exception
 		self.root.report_callback_exception = self.catch_exception
 		self.root.title("ZTG Map Editor (ztmapper)")
 		self.root.bind_all('<Expose>', self.onRedraw)
-		self.root.bind_all('w', self.onMoveTop)
-		self.root.bind_all('a', self.onMoveLeft)
-		self.root.bind_all('s', self.onMoveDown)
-		self.root.bind_all('d', self.onMoveRight)
-		self.root.bind_all('W', self.onMoveTop)
-		self.root.bind_all('A', self.onMoveLeft)
-		self.root.bind_all('S', self.onMoveDown)
-		self.root.bind_all('D', self.onMoveRight)
-		self.root.bind_all('x', self.onDecrLayer)
-		self.root.bind_all('y', self.onIncrLayer)
-		self.root.bind_all('<Delete>', self.onDeleteElement)
+		self.root.bind_all('w', self.onUp)
+		self.root.bind_all('a', self.onLeft)
+		self.root.bind_all('s', self.onDown)
+		self.root.bind_all('d', self.onRight)
+		self.root.bind_all('<Delete>', self.onDelete)
 		self.root.bind_all('<Control-a>', self.onSelectAll)
 		self.root.bind_all('<Shift-Tab>', self.onBackElement)
 		self.root.bind_all('<Tab>', self.onNextElement)
@@ -71,7 +64,7 @@ class Application:
 		self.canvas.pack(side=LEFT, fill=BOTH, expand=1)
 		self.canvas.bind('<Button-1>',  self.onSelectElement)
 		self.canvas.bind('<Button-3>',  self.onCreateElement)
-		self.canvas.bind('<B1-Motion>',  self.onCameraMove)
+		self.canvas.bind('<B1-Motion>',  self.onMove)
 		self.canvas.bind('<Motion>',  self.onMotion)
 
 		workpanel = Frame(self.root)
@@ -117,8 +110,8 @@ class Application:
 		self.root.mainloop()
 		
 	def update(self):
-		repaint(self.canvas, self.camera, self.elements, self.selection)
-		
+		repaint(self.canvas, self.camera, self.space)
+		"""
 		self.camstatus.config(text="Camera (%5d px, %5d px)" % (self.camera.x, self.camera.y))
 
 		if len(self.selection) == 0 or self.selection[0] < 0 or self.selection[0] >= len(self.elements):
@@ -136,10 +129,11 @@ class Application:
 		self.rotation.insert(0, str(element.rotation))
 		self.layer.delete(0, len(self.layer.get()))
 		self.layer.insert(0, str(int(element.layer * 100)))
+		"""
 		
 	def onCreateElement(self, event):
 		self.editframe.show(event.x_root, event.y_root)
-
+		"""
 		if len(self.itemlist.curselection()) == 0:
 			return
 		self.saved = 0
@@ -151,6 +145,7 @@ class Application:
 		element = Element(type, mouse, 0.0, image)
 		self.elements.append(element)
 		self.update()
+		"""
 		
 	def onSelectElement(self, event):
 		self.editframe.unshow()
@@ -160,7 +155,7 @@ class Application:
 		i = 0
 		matches = []
 
-		for element in self.elements:
+		for element in self.space.elements:
 			minx = element.pos.x - element.image.width() / 2
 			maxx = minx + element.image.width()
 			miny = element.pos.y - element.image.height() / 2
@@ -174,154 +169,88 @@ class Application:
 		if len(matches) == 0:
 			return
 		if self.multiselection == 0:
-			self.selection = [ matches[self.selector % len(matches)] ]
+			self.space.selection = [ matches[self.selector % len(matches)] ]
 		else:
 			for selected in matches:
 				if selected in self.selection:
-					self.selection.remove(selected)
+					self.space.selection.remove(selected)
 				else:
-					self.selection.append(selected)
+					self.space.selection.append(selected)
 			
 		self.update()
 		self.selector += 1
 	
-	def onCameraMove(self,event):
-		self.camera.x += (self.lastx - event.x)
-		self.camera.y -= (self.lasty - event.y)
+	def onMove(self,event):
+		self.camera += Vec2(self.lastx - event.x, event.y - self.lasty)
 		self.update()
 		self.lastx = event.x
 		self.lasty = event.y
 
-	def onMotion(self,event):	
-		mouse = screen2space(Vec2(event.x, event.y), Vec2(self.camera.x, self.camera.y), Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
+	def onMotion(self,event):
+		"""
+		mouse = screen2space(Vec2(event.x, event.y), self.space.camera.x,  Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
 		self.mousestatus.config(text="Mouse (%5d px, %5d px)" % (mouse.x, mouse.y))
+		"""
 
 	def onCameraReset(self):
-		self.camera.x = 0
-		self.camera.y = 0
+		self.camera = Vec2(0,0)
 		self.update()
 	
-	def onMoveLeft(self, event):
-		speed = 10
-		
-		if event.keysym == 'A':
-			speed = 1
-	
-		for selected in self.selection:
-			if selected < len(self.elements):
-				self.elements[selected].pos.x -= speed
-				self.saved = 0
+	def onLeft(self, event):
+		self.saved = 0
+		self.space.moveSelection(Vec2(-1,0))
 		self.update()
 	
-	def onMoveRight(self, event):
-		speed = 10
-		
-		if event.keysym == 'D':
-			speed = 1
-	
-		for selected in self.selection:
-			if selected < len(self.elements):
-				self.elements[selected].pos.x += speed
-				self.saved = 0
+	def onRight(self, event):
+		self.saved = 0
+		self.space.moveSelection(Vec2(1,0))
 		self.update()
 
-	def onMoveTop(self, event):
-		speed = 10
-		
-		if event.keysym == 'W':
-			speed = 1
-	
-		for selected in self.selection:
-			if selected < len(self.elements):
-				self.elements[selected].pos.y += speed
-				self.saved = 0
-		self.update()	
-
-	def onMoveDown(self, event):
-		speed = 10
-		
-		if event.keysym == 'S':
-			speed = 1
-	
-		for selected in self.selection:
-			if selected < len(self.elements):
-				self.elements[selected].pos.y -= speed
-				self.saved = 0
+	def onUp(self, event):
+		self.saved = 0
+		self.space.moveSelection(Vec2(0,1))
 		self.update()
 
-	def onIncrLayer(self, event):
-		for selected in self.selection:
-			if selected < len(self.elements):
-				self.elements[selected].layer += 0.01
-				self.saved = 0
-				if self.elements[selected].layer > 1.0:
-					self.elements[selected].layer = 1.0
+	def onDown(self, event):
+		self.saved = 0
+		self.space.moveSelection(Vec2(0,-1))
 		self.update()
 
-	def onDecrLayer(self, event):
-		for selected in self.selection:
-			if selected < len(self.elements):
-				self.elements[selected].layer -= 0.01
-				self.saved = 0
-				if self.elements[selected].layer < 0.0:
-					self.elements[selected].layer = 0.0
-		self.update()
-	
-	def onDeleteElement(self, event):
-		selected_elements = []
-		for selected in self.selection:
-			if selected < len(self.elements):
-				selected_elements.append(self.elements[selected])
-				
-		for element in selected_elements:
-			self.elements.remove(element)
-			self.saved = 0
-		self.selection = []
+	def onDelete(self, event):
+		self.space.deleteSelection()
 		self.update()
 	
 	def onBackElement(self,event):
-		if len(self.elements) == 0:
-			self.selection = []
-			return
-		min = len(self.elements) - 1
-		for selected in self.selection:
-			if selected < min:
-				min = selected
-		self.selection = [ min - 1 ]
-		if self.selection[0] < 0:
-			self.selection[0] = len(self.elements) -1
-		self.camera = self.elements[self.selection[0]].pos
+		self.space.previous()
+		selecteds = self.space.getSelected()
+		if len(selecteds) == 1:
+			self.camera = selecteds[0].pos
 		self.update()
 	
 	def onNextElement(self,event):
-		if len(self.elements) == 0:
-			self.selection = []
-			return
-		max = 0
-		for selected in self.selection:
-			if selected > max:
-				max = selected
-		self.selection = [ max + 1 ]
-		if self.selection[0] >= len(self.elements):
-			self.selection[0] = 0
-		self.camera = self.elements[self.selection[0]].pos
+		self.space.next()
+		selecteds = self.space.getSelected()
+		if len(selecteds) == 1:
+			self.camera = selecteds[0].pos
 		self.update()
 		
 	def onSelectAll(self,event):
-		self.selection = range(len(self.elements))
+		self.space.selection = range(len(self.space.elements))
 		self.update()
 		
 	def onCopy(self,event):
-		self.clipboard = list(self.selection)
+		self.space.clipboard = list(self.space.selection)
 		
 	def onPaste(self,event):
-		self.selection = range(len(self.elements), len(self.elements)+len(self.clipboard))
+		"""
+		self.space.selection = range(len(self.space.elements), len(self.space.elements)+len(self.space.clipboard))
 		for selected in self.clipboard:
 			if 0 <= selected and selected < len(self.elements):
 				element = element_copy(self.elements[selected])
 				self.elements.append(element)
 				self.saved = 0
 		self.update()
+		"""
 		
 	def onMultiSelectionEnable(self,event):
 		self.multiselection = 1
@@ -334,19 +263,18 @@ class Application:
 		if self.path == None or self.path == "":
 			return
 		file = open(self.path, "r")
-		mapRead(file, self.elements, self.images)
+		mapRead(file, self.space.elements, self.images)
 		file.close()
 		curelement = 0
-		element = self.elements[curelement]
-		self.camera.x = 0
-		self.camera.y = 0
+		element = self.space.elements[curelement]
+		self.camera = Vec2(0,0)
 		self.saved = 1
 		self.update()
 
 	def onSave(self):
 		if self.path != None and self.path != "":
 			file = open(self.path, "w")
-			mapWrite(self.elements, file)
+			mapWrite(self.space.elements, file)
 			file.close()
 			self.saved = 1
 			

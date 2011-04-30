@@ -1,8 +1,12 @@
 from Tkinter import *
 from vec2 import *
+from space import *
 from util import *
 
-def repaint(canvas, camera, elements, selection):
+def repaint(canvas, camera, space):
+	elements = space.elements
+	selection = space.selection
+
 	renderables = sorted(list(elements), key=sortElement)
 	canvas.delete(ALL)
 

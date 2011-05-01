@@ -137,12 +137,15 @@ class EditFrame:
 		self.main.unshow()
 
 	def addElement(self,label):
+		self.space.saved = 0
 		position = self.editor.getScreenInSpace(self.mouse)
 		element = Element(label, position, 0.0, 0.0)
 		self.space.addElement(element)
 		self.editor.render(self.space)
 
 	def deleteSelectedElements(self,label):
+		if len(self.space.selection) != 0:
+			self.space.saved = 0
 		self.space.deleteSelection()
 		self.editor.render(self.space)
 

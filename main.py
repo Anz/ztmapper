@@ -18,13 +18,12 @@ class Application:
 		self.selector = 0
 		self.clipboard = []
 		self.multiselection = 0
-		self.saved = 1
 
 		self.lastx = 0
 		self.lasty = 0
 
 		self.root = Tk()
-		self.root.protocol("WM_DELETE_WINDOW", self.onClose)
+		self.root.protocol("WM_DELETE_WINDOW", self.onWindowClose)
 		self.root.report_callback_exception = self.catch_exception
 		self.root.report_callback_exception = self.catch_exception
 		self.root.title("ZTG Map Editor (ztmapper)")
@@ -39,6 +38,7 @@ class Application:
 		self.root.bind_all('<Tab>', self.onNextElement)
 		self.root.bind_all('<Control_L>', self.onMultiSelectionEnable)
 		self.root.bind_all('<KeyRelease-Control_L>', self.onMultiSelectionDisable)
+		self.root.bind_all('<Control-o>', self.onShortOpen)
 		self.root.bind_all('<Control-s>', self.onShortSave)
 		self.root.bind_all('<Control-c>', self.onCopy)
 		self.root.bind_all('<Control-v>', self.onPaste)
@@ -50,6 +50,7 @@ class Application:
 		filemenu.add_command(label="Open", command=self.onOpen)
 		filemenu.add_command(label="Save", command=self.onSave)
 		filemenu.add_command(label="Save As", command=self.onSaveAs)
+		filemenu.add_command(label="Close", command=self.onClose)
 		menubar.add_cascade(label="File", menu=filemenu)
 		editmenu = Menu(menubar, tearoff=0)
 		editmenu.add_command(label="Reset Camera", command=self.onCameraReset)
@@ -71,37 +72,6 @@ class Application:
 		self.canvas.bind('<Motion>',  self.onMotion)
 
 		self.editor = Editor(self.canvas, self.images)
-
-		workpanel = Frame(self.root)
-		workpanel.pack(side=RIGHT, fill=Y)
-		
-		self.itemlist = Listbox(workpanel)
-		self.itemlist.pack(side=TOP, fill=BOTH, expand=1)
-		for image in self.images:
-			self.itemlist.insert(END, image.title())
-			
-		infopanel = Frame(workpanel)
-		infopanel.pack(side=BOTTOM)
-		
-		self.type = Entry(infopanel)
-		self.type.grid(row=0, column=0, columnspan=3)
-		Label(infopanel, text="X").grid(row=1, column=0, sticky=W)
-		self.x = Entry(infopanel, width=4)
-		self.x.grid(row=1, column=1)
-		Label(infopanel, text="px").grid(row=1, column=2, sticky=W)
-		Label(infopanel, text="Y").grid(row=2, column=0, sticky=W)
-		self.y = Entry(infopanel, width=4)
-		self.y.grid(row=2, column=1)
-		Label(infopanel, text="px").grid(row=2, column=2, sticky=W)
-		Label(infopanel, text="Rotation").grid(row=3, column=0, sticky=W)
-		self.rotation = Entry(infopanel, width=4)
-		self.rotation.grid(row=3, column=1)
-		Label(infopanel, text="deg").grid(row=3, column=2, sticky=W)
-		Label(infopanel, text="Layer").grid(row=4, column=0, sticky=W)
-		self.layer = Entry(infopanel, width=4)
-		self.layer.grid(row=4, column=1)
-		Label(infopanel, text="%").grid(row=4, column=2, sticky=W)
-			
 		self.editframe = EditFrame(self.editor, self.space, self.images)
 
 		self.root.update_idletasks()
@@ -115,44 +85,10 @@ class Application:
 		self.root.mainloop()
 		
 	def update(self):
-		#repaint(self.canvas, self.editor.camera, self.space)
 		self.editor.render(self.space)
 
-		"""
-		self.camstatus.config(text="Camera (%5d px, %5d px)" % (self.camera.x, self.camera.y))
-
-		if len(self.selection) == 0 or self.selection[0] < 0 or self.selection[0] >= len(self.elements):
-			return
-		
-		element = self.elements[self.selection[0]]
-		
-		self.type.delete(0, len(self.type.get()))
-		self.type.insert(0, element.type.title())
-		self.x.delete(0, len(self.x.get()))
-		self.x.insert(0, str(element.pos.x))
-		self.y.delete(0, len(self.y.get()))
-		self.y.insert(0, str(element.pos.y))
-		self.rotation.delete(0, len(self.rotation.get()))
-		self.rotation.insert(0, str(element.rotation))
-		self.layer.delete(0, len(self.layer.get()))
-		self.layer.insert(0, str(int(element.layer * 100)))
-		"""
-		
 	def onEdit(self, event):
 		self.editframe.show(Vec2(event.x_root, event.y_root), Vec2(event.x, event.y))
-		"""
-		if len(self.itemlist.curselection()) == 0:
-			return
-		self.saved = 0
-		type = self.itemlist.get(self.itemlist.curselection()[0]).lower()
-		image = self.images[type]
-		self.selection = [ len(self.elements) ]
-		
-		mouse = screen2space(Vec2(event.x, event.y), self.camera, Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
-		element = Element(type, mouse, 0.0, image)
-		self.elements.append(element)
-		self.update()
-		"""
 		
 	def onSelect(self, event):
 		self.editframe.unshow()
@@ -199,39 +135,42 @@ class Application:
 		diff = Vec2(event.x - self.lastx, self.lasty - event.y)
 		if self.space.mode == 1:
 			self.space.moveSelection(diff)
+			self.space.saved = 0
 		self.lastx = event.x
 		self.lasty = event.y
 		self.update()
-		"""
-		mouse = screen2space(Vec2(event.x, event.y), self.space.camera.x,  Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
-		self.mousestatus.config(text="Mouse (%5d px, %5d px)" % (mouse.x, mouse.y))
-		"""
 
 	def onCameraReset(self):
 		self.editor.camera = Vec2(0,0)
 		self.update()
 	
 	def onLeft(self, event):
-		self.saved = 0
+		if len(self.space.selection) != 0:
+			self.space.saved = 0
 		self.space.moveSelection(Vec2(-1,0))
 		self.update()
 	
 	def onRight(self, event):
-		self.saved = 0
+		if len(self.space.selection) != 0:
+			self.space.saved = 0
 		self.space.moveSelection(Vec2(1,0))
 		self.update()
 
 	def onUp(self, event):
-		self.saved = 0
+		if len(self.space.selection) != 0:
+			self.space.saved = 0
 		self.space.moveSelection(Vec2(0,1))
 		self.update()
 
 	def onDown(self, event):
-		self.saved = 0
+		if len(self.space.selection) != 0:
+			self.space.saved = 0
 		self.space.moveSelection(Vec2(0,-1))
 		self.update()
 
 	def onDelete(self, event):
+		if len(self.space.selection) != 0:
+			self.space.saved = 0
 		self.space.deleteSelection()
 		self.update()
 	
@@ -268,6 +207,7 @@ class Application:
 			element.pos += self.editor.camera
 			self.space.selection.append(len(self.space.elements))
 			self.space.elements.append(element)
+			self.space.saved = 0
 		self.update()
 		
 	def onMultiSelectionEnable(self,event):
@@ -286,8 +226,11 @@ class Application:
 		curelement = 0
 		element = self.space.elements[curelement]
 		self.editor.camera = Vec2(0,0)
-		self.saved = 1
+		self.space.saved = 1
 		self.update()
+
+	def onShortOpen(self,event):
+		self.onOpen()
 
 	def onSave(self):
 		if self.path != None and self.path != "":
@@ -303,11 +246,19 @@ class Application:
 		self.path = asksaveasfilename(defaultextension=".map")
 		self.onSave()
 
+	def onClose(self):
+		if self.space.saved == 1 or askokcancel("Unsaved changes", "Do you really wish to quit without saving?"):
+			self.space.elements = []
+			self.space.selection = []
+			self.clipboard = []
+			self.camera = Vec2(0,0)
+			self.space.saved = 1
+
 	def onRedraw(self,event):
 		self.update()
 		
-	def onClose(self):
-		if self.saved == 1 or askokcancel("Unsaved changes", "Do you really wish to quit without saving?"):
+	def onWindowClose(self):
+		if self.space.saved == 1 or askokcancel("Unsaved changes", "Do you really wish to quit without saving?"):
 			self.root.destroy()
 		
 	def catch_exception(self, *args):

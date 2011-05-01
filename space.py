@@ -4,6 +4,7 @@ class Space:
 	def __init__(self):
 		self.elements = []
 		self.selection = []
+		self.mode = 0
 
 	def getSelected(self):
 		selecteds = []

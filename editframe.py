@@ -115,7 +115,7 @@ class EditFrame:
 		self.main = EditMenu()
 		self.main.addsubmenu("Add", self.addsubmenu)
 		self.main.addsubmenu("Layer", self.layersubmenu)
-		self.main.additem("Move", None)
+		self.main.additem("Move", self.moveSelection)
 		self.main.additem("Delete", self.deleteSelectedElements)
 		self.main.additem("Properties", None)
 
@@ -136,3 +136,5 @@ class EditFrame:
 		self.space.deleteSelection()
 		self.editor.render(self.space)
 
+	def moveSelection(self,label):
+		self.space.mode = 1

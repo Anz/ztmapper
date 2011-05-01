@@ -20,6 +20,9 @@ class Application:
 		self.multiselection = 0
 		self.saved = 1
 
+		self.lastx = 0
+		self.lasty = 0
+
 		self.root = Tk()
 		self.root.protocol("WM_DELETE_WINDOW", self.onClose)
 		self.root.report_callback_exception = self.catch_exception
@@ -153,6 +156,7 @@ class Application:
 		
 	def onSelect(self, event):
 		self.editframe.unshow()
+		self.space.mode = 0
 
 		self.lastx = event.x
 		self.lasty = event.y
@@ -165,17 +169,6 @@ class Application:
 			min = element.pos - size
 			max = element.pos + size
 			mouse = self.editor.getScreenInSpace(Vec2(event.x, event.y))
-			"""
-			minx = element.pos.x - element.image.width() / 2
-			maxx = minx + element.image.width()
-			miny = element.pos.y - element.image.height() / 2
-			maxy = miny + element.image.height()
-			mouse = screen2space(Vec2(event.x, event.y), self.editor.camera, Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
-			
-			if (minx < mouse.x) and (mouse.x < maxx) and \
-				(miny < mouse.y) and (mouse.y < maxy):
-					matches.append(i)
-			"""
 			if min < mouse and mouse < max:
 				matches.append(i)
 			i += 1
@@ -195,12 +188,20 @@ class Application:
 		self.selector += 1
 	
 	def onMove(self,event):
-		self.editor.camera += Vec2(self.lastx - event.x, event.y - self.lasty)
+		diff = Vec2(event.x - self.lastx, self.lasty - event.y)
+		if self.space.mode == 0:
+			self.editor.camera -= diff
 		self.update()
 		self.lastx = event.x
 		self.lasty = event.y
 
 	def onMotion(self,event):
+		diff = Vec2(event.x - self.lastx, self.lasty - event.y)
+		if self.space.mode == 1:
+			self.space.moveSelection(diff)
+		self.lastx = event.x
+		self.lasty = event.y
+		self.update()
 		"""
 		mouse = screen2space(Vec2(event.x, event.y), self.space.camera.x,  Vec2(self.canvas.winfo_width(), self.canvas.winfo_height()))
 		self.mousestatus.config(text="Mouse (%5d px, %5d px)" % (mouse.x, mouse.y))

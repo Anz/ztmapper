@@ -12,7 +12,17 @@ class EditButton:
 		self.frame.pack(fill=X)
 		self.frame.bind('<Enter>', self.onEnter)
 
-		self.button = Button(self.frame, text=text, padx=15,disabledforeground="black",activebackground="grey", fg="grey", bg="grey20", highlightthickness=0, relief=FLAT, anchor=W, 
+		self.button = Button(
+			self.frame, 
+			text=text, 
+			padx=15,
+			disabledforeground="black",
+			activebackground="grey", 
+			fg="grey", 
+			bg="grey20", 
+			highlightthickness=0, 
+			relief=FLAT, 
+			anchor=W, 
 			command=self.onClick)
 		self.button.pack(side=LEFT,fill=X,expand=1)
 
@@ -76,21 +86,19 @@ class EditMenu:
 		self.root = Toplevel(bg='grey20')
 		self.root.overrideredirect(1)
 		self.root.withdraw()
-		self.items = 0
+		self.buttons = []
 		self.submenu = None
 		
 	def additem(self, text, command):
-		EditButton(self, text, command)
-		self.items += 1
+		self.buttons.append(EditButton(self, text, command))
 
 	def addsubmenu(self, text, submenu):
 		submenu.parent = self
-		EditSubButton(self, self.items, text, submenu)
-		self.items += 1
+		self.buttons.append(EditSubButton(self, len(self.buttons), text, submenu))
 
 
 	def show(self, position):
-		self.root.geometry("%dx%d%+d%+d" % (116, self.items * 27, position.x, position.y))
+		self.root.geometry("%dx%d%+d%+d" % (116, len(self.buttons) * 27, position.x, position.y))
 		self.root.deiconify()
 
 	def unshow(self):
@@ -116,6 +124,7 @@ class EditFrame:
 		self.main.addsubmenu("Add", self.addsubmenu)
 		self.main.addsubmenu("Layer", self.layersubmenu)
 		self.main.additem("Move", self.moveSelection)
+		self.main.additem("Unselect all", self.unselectElements)
 		self.main.additem("Delete", self.deleteSelectedElements)
 		self.main.additem("Properties", None)
 
@@ -138,3 +147,6 @@ class EditFrame:
 
 	def moveSelection(self,label):
 		self.space.mode = 1
+
+	def unselectElements(self,label):
+		self.space.selection = []

@@ -1,6 +1,7 @@
 from Tkinter import *
 from editor import *
 from element import *
+from util import *
 
 class EditButton:
 	def __init__(self, parent, text, command):

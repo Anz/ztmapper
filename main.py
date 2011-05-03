@@ -10,6 +10,7 @@ from level import *
 from editframe import *
 from util import *
 from io import *
+from subprocess import *
 		
 class Application:
 
@@ -54,6 +55,7 @@ class Application:
 		menubar.add_cascade(label="File", menu=filemenu)
 		editmenu = Menu(menubar, tearoff=0)
 		editmenu.add_command(label="Reset Camera", command=self.onCameraReset)
+		editmenu.add_command(label="Test Map", command=self.onStartGame)
 		menubar.add_cascade(label="Edit", menu=editmenu)
 		self.root.config(menu=menubar)
 
@@ -75,12 +77,7 @@ class Application:
 		self.editframe = EditFrame(self.editor, self.space, self.images)
 
 		self.root.update_idletasks()
-		w=self.root.winfo_width()
-		h=self.root.winfo_height()
-		extraW=self.root.winfo_screenwidth()-w
-		extraH=self.root.winfo_screenheight()-h
-		self.root.geometry("%dx%d%+d%+d" % (w*2,h*2,extraW/4,extraH/4))
-		self.root.update_idletasks()
+		self.root.geometry("%sx%s+0+0" % self.root.maxsize())
 		self.update()
 		self.root.mainloop()
 		
@@ -144,6 +141,9 @@ class Application:
 		self.editor.camera = Vec2(0,0)
 		self.update()
 	
+	def onStartGame(self):
+		Popen("/home/anz/workspace/ztg/img /home/anz/ztmapper/cave.map", shell=True, executable="/home/anz/workspace/ztg/bin/ztg")
+
 	def onLeft(self, event):
 		if len(self.space.selection) != 0:
 			self.space.saved = 0
